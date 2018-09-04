@@ -20,17 +20,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
@@ -45,75 +36,14 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
-import net.spy.memcached.collection.Attributes;
-import net.spy.memcached.collection.BKeyObject;
-import net.spy.memcached.collection.BTreeCount;
-import net.spy.memcached.collection.BTreeCreate;
-import net.spy.memcached.collection.BTreeDelete;
-import net.spy.memcached.collection.BTreeElement;
-import net.spy.memcached.collection.BTreeFindPosition;
-import net.spy.memcached.collection.BTreeFindPositionWithGet;
-import net.spy.memcached.collection.BTreeGet;
-import net.spy.memcached.collection.BTreeGetBulk;
-import net.spy.memcached.collection.BTreeGetBulkWithByteTypeBkey;
-import net.spy.memcached.collection.BTreeGetBulkWithLongTypeBkey;
-import net.spy.memcached.collection.BTreeGetByPosition;
-import net.spy.memcached.collection.BTreeGetResult;
-import net.spy.memcached.collection.BTreeMutate;
-import net.spy.memcached.collection.BTreeOrder;
-import net.spy.memcached.collection.BTreeSMGet;
-import net.spy.memcached.collection.BTreeSMGetWithByteTypeBkey;
-import net.spy.memcached.collection.BTreeSMGetWithByteTypeBkeyOld;
-import net.spy.memcached.collection.BTreeSMGetWithLongTypeBkey;
-import net.spy.memcached.collection.BTreeSMGetWithLongTypeBkeyOld;
-import net.spy.memcached.collection.BTreeStore;
-import net.spy.memcached.collection.BTreeStoreAndGet;
-import net.spy.memcached.collection.BTreeUpdate;
-import net.spy.memcached.collection.BTreeUpsert;
-import net.spy.memcached.collection.ByteArrayBKey;
-import net.spy.memcached.collection.ByteArrayTreeMap;
-import net.spy.memcached.collection.CollectionAttributes;
-import net.spy.memcached.collection.CollectionBulkStore;
-import net.spy.memcached.collection.CollectionCount;
-import net.spy.memcached.collection.CollectionCreate;
-import net.spy.memcached.collection.CollectionDelete;
-import net.spy.memcached.collection.CollectionExist;
-import net.spy.memcached.collection.CollectionGet;
-import net.spy.memcached.collection.CollectionMutate;
-import net.spy.memcached.collection.CollectionPipedStore;
+import net.spy.memcached.collection.*;
 import net.spy.memcached.collection.CollectionPipedStore.BTreePipedStore;
 import net.spy.memcached.collection.CollectionPipedStore.ByteArraysBTreePipedStore;
 import net.spy.memcached.collection.CollectionPipedStore.ListPipedStore;
 import net.spy.memcached.collection.CollectionPipedStore.SetPipedStore;
 import net.spy.memcached.collection.CollectionPipedStore.MapPipedStore;
-import net.spy.memcached.collection.CollectionPipedUpdate;
 import net.spy.memcached.collection.CollectionPipedUpdate.BTreePipedUpdate;
 import net.spy.memcached.collection.CollectionPipedUpdate.MapPipedUpdate;
-import net.spy.memcached.collection.CollectionResponse;
-import net.spy.memcached.collection.CollectionStore;
-import net.spy.memcached.collection.CollectionUpdate;
-import net.spy.memcached.collection.Element;
-import net.spy.memcached.collection.ElementFlagFilter;
-import net.spy.memcached.collection.ElementFlagUpdate;
-import net.spy.memcached.collection.ElementValueType;
-import net.spy.memcached.collection.ListCreate;
-import net.spy.memcached.collection.ListDelete;
-import net.spy.memcached.collection.ListGet;
-import net.spy.memcached.collection.ListStore;
-import net.spy.memcached.collection.SMGetElement;
-import net.spy.memcached.collection.SMGetTrimKey;
-import net.spy.memcached.collection.SMGetMode;
-import net.spy.memcached.collection.MapCreate;
-import net.spy.memcached.collection.MapDelete;
-import net.spy.memcached.collection.MapGet;
-import net.spy.memcached.collection.MapStore;
-import net.spy.memcached.collection.MapUpdate;
-import net.spy.memcached.collection.SetCreate;
-import net.spy.memcached.collection.SetDelete;
-import net.spy.memcached.collection.SetExist;
-import net.spy.memcached.collection.SetGet;
-import net.spy.memcached.collection.SetPipedExist;
-import net.spy.memcached.collection.SetStore;
 import net.spy.memcached.compat.log.Logger;
 import net.spy.memcached.compat.log.LoggerFactory;
 import net.spy.memcached.internal.BTreeStoreAndGetFuture;
@@ -122,26 +52,7 @@ import net.spy.memcached.internal.CollectionFuture;
 import net.spy.memcached.internal.CollectionGetBulkFuture;
 import net.spy.memcached.internal.OperationFuture;
 import net.spy.memcached.internal.SMGetFuture;
-import net.spy.memcached.ops.BTreeFindPositionOperation;
-import net.spy.memcached.ops.BTreeFindPositionWithGetOperation;
-import net.spy.memcached.ops.BTreeGetBulkOperation;
-import net.spy.memcached.ops.BTreeGetByPositionOperation;
-import net.spy.memcached.ops.BTreeSortMergeGetOperation;
-import net.spy.memcached.ops.BTreeSortMergeGetOperationOld;
-import net.spy.memcached.ops.BTreeStoreAndGetOperation;
-import net.spy.memcached.ops.CollectionBulkStoreOperation;
-import net.spy.memcached.ops.CollectionGetOperation;
-import net.spy.memcached.ops.CollectionOperationStatus;
-import net.spy.memcached.ops.CollectionPipedExistOperation;
-import net.spy.memcached.ops.CollectionPipedStoreOperation;
-import net.spy.memcached.ops.CollectionPipedUpdateOperation;
-import net.spy.memcached.ops.GetAttrOperation;
-import net.spy.memcached.ops.Mutator;
-import net.spy.memcached.ops.Operation;
-import net.spy.memcached.ops.OperationCallback;
-import net.spy.memcached.ops.OperationState;
-import net.spy.memcached.ops.OperationStatus;
-import net.spy.memcached.ops.StoreType;
+import net.spy.memcached.ops.*;
 import net.spy.memcached.plugin.FrontCacheMemcachedClient;
 import net.spy.memcached.transcoders.CollectionTranscoder;
 import net.spy.memcached.transcoders.Transcoder;
@@ -471,6 +382,56 @@ public class ArcusClient extends FrontCacheMemcachedClient implements ArcusClien
     });
     rv.setOperation(op);
     addOp(key, op);
+    return rv;
+  }
+
+  private <T> CollectionFuture<List<T>> asyncRangeGet(final RangeGet rangeGet,
+                                                      final Transcoder<T> tc) {
+    final CountDownLatch latch = new CountDownLatch(1);
+    final CollectionFuture<List<T>> rv = new CollectionFuture<List<T>>(
+            latch, operationTimeout);
+
+    Operation op = opFact.rangeget(rangeGet,
+            new RangeGetOperation.Callback() {
+              List<T> list = new ArrayList<T>();
+
+              public void receivedStatus(OperationStatus status) {
+                CollectionOperationStatus cstatus;
+                if (status instanceof CollectionOperationStatus) {
+                  cstatus = (CollectionOperationStatus) status;
+                } else {
+                  getLogger().warn("Unhandled state: " + status);
+                  cstatus = new CollectionOperationStatus(status);
+                }
+                if (cstatus.isSuccess()) {
+                  rv.set(list, cstatus);
+                  return;
+                }
+                switch (cstatus.getResponse()) {
+                  case NOT_FOUND:
+                    rv.set(null, cstatus);
+                    if (getLogger().isDebugEnabled()) {
+                      getLogger().debug("rangeGet(%s) not found : %s",
+                              rangeGet.getRange(), cstatus);
+                    }
+                    break;
+                  case UNREADABLE:
+                    rv.set(null, cstatus);
+                    if (getLogger().isDebugEnabled()) {
+                      getLogger().debug("rangeGet(%s) is not readable : %s",
+                              rangeGet.getRange(), cstatus);
+                    }
+                    break;
+                }
+              }
+              public void complete() { latch.countDown();}
+
+              public void gotData(byte[] key) {
+                list.add(tc.decode(new CachedData(0, key, tc.getMaxSize())));
+              }
+            });
+    rv.setOperation(op);
+    addOp(rangeGet.getFrkey(), op);
     return rv;
   }
 
@@ -1531,6 +1492,13 @@ public class ArcusClient extends FrontCacheMemcachedClient implements ArcusClien
     }
     MapGet get = new MapGet(mkeyList, withDelete, dropIfEmpty);
     return asyncMopGet(key, get, tc);
+  }
+
+  @Override
+  public CollectionFuture<List<Object>> asyncRangeGet(String frkey, String tokey,
+                                                      int count) {
+    RangeGet rangeGet = new RangeGet(frkey, tokey, count);
+    return asyncRangeGet(rangeGet, collectionTranscoder);
   }
 
   /*

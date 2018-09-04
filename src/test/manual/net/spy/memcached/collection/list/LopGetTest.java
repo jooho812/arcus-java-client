@@ -47,6 +47,10 @@ public class LopGetTest extends BaseIntegrationTest {
     }
   }
 
+  public void testRangeGet() throws Exception {
+//    List<Object> rlist = mc.asyncRangeGet();
+  }
+
   public void testLopGet_NoKey() throws Exception {
     List<Object> rlist = mc.asyncLopGet("no_key", 0, false, false).get(
             1000, TimeUnit.MILLISECONDS);
